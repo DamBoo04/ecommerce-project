@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../../api";
+import Swal from "sweetalert2";
 
 export default function ProductsList() {
   const [products, setProducts] = useState([]);
@@ -34,6 +35,7 @@ export default function ProductsList() {
       setBrands(b.data);
     } catch (err) {
       console.error("Fetch failed", err);
+      Swal.fire("Error", "Failed to fetch data", "error");
     }
   };
 
@@ -89,11 +91,10 @@ export default function ProductsList() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (files) {
-      setFormData({ ...formData, [name]: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -102,34 +103,53 @@ export default function ProductsList() {
     try {
       const body = new FormData();
       Object.keys(formData).forEach((key) => {
-        if (formData[key] !== null && formData[key] !== "")
+        if (formData[key] !== null && formData[key] !== "") {
           body.append(key, formData[key]);
+        }
       });
 
       if (modal.product) {
         await API.post(`/products/${modal.product.id}?_method=PUT`, body, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+
+        Swal.fire("Updated!", "Product updated successfully.", "success");
       } else {
         await API.post("/products", body, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+
+        Swal.fire("Created!", "Product created successfully.", "success");
       }
 
       closeModal();
       fetchData();
     } catch (err) {
       console.error("Create/Update failed", err);
+      Swal.fire("Error", "Create/Update failed", "error");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This product will be deleted permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await API.delete(`/products/${id}`);
+      Swal.fire("Deleted!", "Product has been deleted.", "success");
       fetchData();
     } catch (err) {
       console.error("Delete failed", err);
+      Swal.fire("Error", "Delete failed", "error");
     }
   };
 
@@ -197,7 +217,7 @@ export default function ProductsList() {
           <tbody className="divide-y">
             {filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-10 text-gray-400">
+                <td colSpan="7" className="text-center py-10 text-gray-400">
                   No products found
                 </td>
               </tr>
@@ -207,6 +227,7 @@ export default function ProductsList() {
                   <td className="px-4 py-3 font-medium text-gray-700">
                     #{p.id}
                   </td>
+
                   <td className="px-4 py-3">
                     {p.image ? (
                       <img
@@ -323,7 +344,6 @@ export default function ProductsList() {
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5"
               />
 
-              {/* Image preview */}
               {preview && (
                 <img
                   src={preview}

@@ -15,8 +15,6 @@ export default function AuthPage() {
     password: "",
     confirmPassword: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Redirect after reload if already logged in
   useEffect(() => {
@@ -178,27 +176,18 @@ export default function AuthPage() {
               )}
 
               {/* Password */}
-              <div className="mb-6 relative">
+              <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
                 </label>
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   name="password"
                   value={form.password}
                   onChange={handleChange}
                   placeholder="••••••"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  <i
-                    className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
-                  ></i>
-                </button>
                 {form.password && !validatePassword(form.password) && (
                   <p className="mt-2 text-sm text-red-600">
                     Password must be at least 6 characters
@@ -208,29 +197,18 @@ export default function AuthPage() {
 
               {/* Confirm Password (Register only) */}
               {!isLogin && (
-                <div className="mb-6 relative">
+                <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Confirm Password
                   </label>
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
+                    type="password"
                     name="confirmPassword"
                     value={form.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
                   />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    <i
-                      className={`fas ${
-                        showConfirmPassword ? "fa-eye-slash" : "fa-eye"
-                      }`}
-                    ></i>
-                  </button>
                   {form.confirmPassword && !validateConfirmPassword() && (
                     <p className="mt-2 text-sm text-red-600">
                       Passwords do not match
@@ -278,7 +256,7 @@ export default function AuthPage() {
             "url('https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/a50d54107315669.5fa41a499eeb0.png')",
         }}
       >
-        <div className="h-full bg-opacity-100 flex items-center justify-center">
+        <div className="h-full flex items-center justify-center">
           <div className="text-center text-white px-12">
             <h2 className="text-4xl font-bold mb-6">Your Title</h2>
             <p className="text-xl">

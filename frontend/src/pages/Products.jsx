@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function CartItemCard({ product, onAddToCart }) {
+export default function CartItemCard({ product }) {
   const [favorite, setFavorite] = useState(false);
   const navigate = useNavigate();
 
@@ -67,17 +67,6 @@ export default function CartItemCard({ product, onAddToCart }) {
             </span>
           )}
         </div>
-
-        {/* Add to Cart */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // prevent navigating
-            onAddToCart && onAddToCart(product);
-          }}
-          className="mt-4 w-full px-4 py-2 border border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 transition"
-        >
-          Add
-        </button>
       </div>
     </div>
   );

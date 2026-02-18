@@ -1,30 +1,37 @@
-import { useEffect, useState } from "react";
-import API from "../../api"; // adjust path if needed
+import { useEffect, useState, useCallback } from "react";
+import API from "../../api";
 
 export default function BrandsList() {
   const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState({ open: false, brand: null });
   const [name, setName] = useState("");
 
-  const fetchBrands = async () => {
+  const fetchBrands = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await API.get("/brands");
-      setBrands(res.data);
+      setBrands(res.data || []);
     } catch (err) {
-      console.error("Failed to fetch brands", err);
+      console.error("Failed to fetch brands:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBrands();
-  }, []);
+  }, [fetchBrands]);
 
-  const openModal = (b = null) => {
-    setModal({ open: true, brand: b });
-    setName(b?.name || "");
+  const openModal = (brand = null) => {
+    setModal({ open: true, brand });
+    setName(brand?.name || "");
   };
 
-  const closeModal = () => setModal({ open: false, brand: null });
+  const closeModal = () => {
+    setModal({ open: false, brand: null });
+    setName("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +44,7 @@ export default function BrandsList() {
       closeModal();
       fetchBrands();
     } catch (err) {
-      console.error("Create/Update failed", err);
+      console.error("Create/Update failed:", err);
     }
   };
 
@@ -47,7 +54,7 @@ export default function BrandsList() {
       await API.delete(`/brands/${id}`);
       fetchBrands();
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error("Delete failed:", err);
     }
   };
 
@@ -80,7 +87,13 @@ export default function BrandsList() {
           </thead>
 
           <tbody className="divide-y">
-            {brands.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="3" className="text-center py-10 text-gray-400">
+                  Loading brands...
+                </td>
+              </tr>
+            ) : brands.length === 0 ? (
               <tr>
                 <td colSpan="3" className="text-center py-10 text-gray-400">
                   No brands available

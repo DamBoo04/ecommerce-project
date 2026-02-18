@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import API from "../../api"; // adjust path if needed
+import API from "../../api";
+import Swal from "sweetalert2";
 
 export default function CategoriesList() {
   const [categories, setCategories] = useState([]);
@@ -12,6 +13,7 @@ export default function CategoriesList() {
       setCategories(res.data);
     } catch (err) {
       console.error("Failed to fetch categories", err);
+      Swal.fire("Error", "Failed to fetch categories", "error");
     }
   };
 
@@ -24,30 +26,51 @@ export default function CategoriesList() {
     setName(c?.name || "");
   };
 
-  const closeModal = () => setModal({ open: false, category: null });
+  const closeModal = () => {
+    setModal({ open: false, category: null });
+    setName("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       if (modal.category) {
         await API.put(`/categories/${modal.category.id}`, { name });
+        Swal.fire("Updated!", "Category updated successfully.", "success");
       } else {
         await API.post("/categories", { name });
+        Swal.fire("Created!", "Category created successfully.", "success");
       }
+
       closeModal();
       fetchCategories();
     } catch (err) {
       console.error("Create/Update category failed", err);
+      Swal.fire("Error", "Create/Update category failed", "error");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this category?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This category will be deleted permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await API.delete(`/categories/${id}`);
+      Swal.fire("Deleted!", "Category has been deleted.", "success");
       fetchCategories();
     } catch (err) {
       console.error("Delete failed", err);
+      Swal.fire("Error", "Delete failed", "error");
     }
   };
 
